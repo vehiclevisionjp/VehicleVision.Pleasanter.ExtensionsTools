@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/ExtensionsSyncTool/ExtensionsSyncTool.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ExtensionsSyncTool.Tests/ExtensionsSyncTool.Tests.csproj" />
+  </Folder>
+</Solution>
