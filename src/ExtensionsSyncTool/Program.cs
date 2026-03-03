@@ -3,8 +3,8 @@ using System.CommandLine.Invocation;
 using System.CommandLine.Parsing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using ExtensionsSyncTool.Configuration;
-using ExtensionsSyncTool.Services;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Configuration;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Services;
 
 // 設定ファイルの読み込み
 var configuration = new ConfigurationBuilder()

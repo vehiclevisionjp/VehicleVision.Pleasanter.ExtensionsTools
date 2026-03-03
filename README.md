@@ -118,10 +118,11 @@ dotnet run --project src/ExtensionsSyncTool -- push --dry-run ...
 VehicleVision.Pleasanter.ExtensionsTools/
 ├── Implem.Pleasanter/              # サブモジュール（Pleasanter 本体コード参照用）
 ├── src/
-│   └── ExtensionsSyncTool/         # 同期 CLI ツール
-│       ├── Configuration/          # 設定クラス
-│       ├── Models/                 # データモデル・API モデル
-│       └── Services/               # ビジネスロジック
+│   ├── Common/                     # 共有クラスライブラリ
+│   │   ├── Configuration/          # 設定クラス
+│   │   ├── Models/                 # データモデル・API モデル
+│   │   └── Services/               # ビジネスロジック（API クライアント・ファイルサービス・同期）
+│   └── ExtensionsSyncTool/         # 同期 CLI ツール（Program.cs のみ）
 ├── tests/
 │   └── ExtensionsSyncTool.Tests/   # xUnit テストプロジェクト
 ├── .github/                        # GitHub 設定（CI/CD、セキュリティポリシー等）
@@ -130,7 +131,7 @@ VehicleVision.Pleasanter.ExtensionsTools/
 ├── .editorconfig
 ├── .gitignore
 ├── .gitmodules
-└── VehicleVision.Pleasanter.ExtensionsTools.sln
+└── VehicleVision.Pleasanter.ExtensionsTools.slnx
 ```
 
 ### ファイルと Extensions テーブルのマッピング

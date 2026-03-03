@@ -223,10 +223,11 @@ public void SetApiKey(string apiKey)
 ```text
 VehicleVision.Pleasanter.ExtensionsTools/
 ├── src/
-│   └── ExtensionsSyncTool/
-│       ├── Configuration/
-│       ├── Models/
-│       └── Services/
+│   ├── Common/                           # 共有クラスライブラリ
+│   │   ├── Configuration/
+│   │   ├── Models/
+│   │   └── Services/
+│   └── ExtensionsSyncTool/               # CLI ツール
 └── tests/
     └── ExtensionsSyncTool.Tests/
         └── Services/
@@ -243,7 +244,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-using ExtensionsSyncTool.Models;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Models;
 ```
 
 ### ファイル内の順序

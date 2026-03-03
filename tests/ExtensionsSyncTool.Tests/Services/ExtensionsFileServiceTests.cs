@@ -1,8 +1,8 @@
 using System.Text.Json;
-using ExtensionsSyncTool.Models;
-using ExtensionsSyncTool.Services;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Models;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Services;
 
-namespace ExtensionsSyncTool.Tests.Services;
+namespace VehicleVision.Pleasanter.ExtensionsTools.Tests.Services;
 
 /// <summary>
 /// ExtensionsFileService のテスト

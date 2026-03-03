@@ -1,7 +1,7 @@
-using ExtensionsSyncTool.Configuration;
-using ExtensionsSyncTool.Models;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Configuration;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Models;
 
-namespace ExtensionsSyncTool.Services;
+namespace VehicleVision.Pleasanter.ExtensionsTools.Common.Services;
 
 /// <summary>
 /// Extensions テーブルとローカルファイルの双方向同期サービス

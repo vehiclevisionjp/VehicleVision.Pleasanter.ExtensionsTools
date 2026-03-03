@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\ExtensionsSyncTool\ExtensionsSyncTool.csproj" />
+    <ProjectReference Include="..\..\src\Common\VehicleVision.Pleasanter.ExtensionsTools.Common.csproj" />
   </ItemGroup>
 
 </Project>

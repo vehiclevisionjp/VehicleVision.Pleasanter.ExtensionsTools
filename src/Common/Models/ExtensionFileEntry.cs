@@ -1,4 +1,4 @@
-namespace ExtensionsSyncTool.Models;
+namespace VehicleVision.Pleasanter.ExtensionsTools.Common.Models;
 
 /// <summary>
 /// ローカルファイルシステム上の拡張機能エントリを表すモデル

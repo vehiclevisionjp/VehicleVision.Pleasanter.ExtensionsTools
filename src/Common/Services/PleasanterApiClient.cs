@@ -1,9 +1,9 @@
 using System.Net.Http.Json;
 using System.Text.Json;
-using ExtensionsSyncTool.Configuration;
-using ExtensionsSyncTool.Models;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Configuration;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Models;
 
-namespace ExtensionsSyncTool.Services;
+namespace VehicleVision.Pleasanter.ExtensionsTools.Common.Services;
 
 /// <summary>
 /// プリザンター Extensions API クライアントの実装

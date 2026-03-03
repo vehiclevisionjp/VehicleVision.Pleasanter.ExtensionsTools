@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace ExtensionsSyncTool.Models;
+namespace VehicleVision.Pleasanter.ExtensionsTools.Common.Models;
 
 /// <summary>
 /// プリザンター API への一覧取得リクエスト

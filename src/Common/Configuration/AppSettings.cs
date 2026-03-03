@@ -1,4 +1,4 @@
-namespace ExtensionsSyncTool.Configuration;
+namespace VehicleVision.Pleasanter.ExtensionsTools.Common.Configuration;
 
 /// <summary>
 /// アプリケーション設定
