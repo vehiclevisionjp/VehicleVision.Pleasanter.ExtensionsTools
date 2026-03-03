@@ -1,0 +1,31 @@
+{
+  "[csharp]": {
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true,
+    "editor.wordWrap": "on",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.markdownlint": "explicit"
+    }
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "editor.formatOnSave": true,
+  "files.eol": "\n",
+  // ==================== RunOnSave（TOC自動更新） ====================
+  "emeraldwalk.runonsave": {
+    "commands": [
+      {
+        "match": "docs[/\\\\].*\\.md$",
+        "cmd": "node docs/script/toc-single.js \"${file}\""
+      }
+    ]
+  }
+}
