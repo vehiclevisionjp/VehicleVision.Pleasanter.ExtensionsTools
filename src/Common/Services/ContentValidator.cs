@@ -312,18 +312,44 @@ public partial class ContentValidator : IContentValidator
     /// <summary>
     /// JavaScript のコメント（// と /* */）および文字列リテラル（' " `）にマッチする正規表現
     /// </summary>
+    /// <remarks>
+    /// パターン構成:
+    /// <list type="bullet">
+    ///   <item><c>//.*?$</c> — 行コメント</item>
+    ///   <item><c>/\*[\s\S]*?\*/</c> — ブロックコメント</item>
+    ///   <item><c>"(?:[^"\\]|\\.)*"</c> — ダブルクォート文字列</item>
+    ///   <item><c>'(?:[^'\\]|\\.)*'</c> — シングルクォート文字列</item>
+    ///   <item><c>`(?:[^`\\]|\\.)*`</c> — テンプレートリテラル</item>
+    /// </list>
+    /// </remarks>
     [GeneratedRegex("""//.*?$|/\*[\s\S]*?\*/|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`""", RegexOptions.Multiline)]
     private static partial Regex JsCommentAndStringPattern();
 
     /// <summary>
     /// CSS のコメント（/* */）および文字列リテラル（' "）にマッチする正規表現
     /// </summary>
+    /// <remarks>
+    /// パターン構成:
+    /// <list type="bullet">
+    ///   <item><c>/\*[\s\S]*?\*/</c> — ブロックコメント</item>
+    ///   <item><c>"(?:[^"\\]|\\.)*"</c> — ダブルクォート文字列</item>
+    ///   <item><c>'(?:[^'\\]|\\.)*'</c> — シングルクォート文字列</item>
+    /// </list>
+    /// </remarks>
     [GeneratedRegex("""/\*[\s\S]*?\*/|"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'""", RegexOptions.Multiline)]
     private static partial Regex CssCommentAndStringPattern();
 
     /// <summary>
     /// HTML タグにマッチする正規表現（開きタグ・閉じタグ・自己閉じタグ）
     /// </summary>
+    /// <remarks>
+    /// キャプチャグループ:
+    /// <list type="bullet">
+    ///   <item>グループ 1 — 閉じタグのスラッシュ（<c>/</c>）。閉じタグの場合に値を持つ。</item>
+    ///   <item>グループ 2 — タグ名（<c>div</c>, <c>span</c> 等）</item>
+    ///   <item>グループ 3 — 自己閉じのスラッシュ（<c>/</c>）。自己閉じタグの場合に値を持つ。</item>
+    /// </list>
+    /// </remarks>
     [GeneratedRegex("""<(/)?([a-zA-Z][a-zA-Z0-9]*)\b[^>]*?(/?)>""")]
     private static partial Regex HtmlTagPattern();
 }
