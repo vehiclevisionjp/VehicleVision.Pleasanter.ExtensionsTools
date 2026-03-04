@@ -4,6 +4,7 @@ using System.CommandLine.Parsing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VehicleVision.Pleasanter.ExtensionsTools.Common.Configuration;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Models;
 using VehicleVision.Pleasanter.ExtensionsTools.Common.Services;
 
 // 設定ファイルの読み込み
@@ -92,8 +93,12 @@ pushCommand.SetHandler(async (InvocationContext context) =>
 });
 
 // validate コマンド: ローカルファイルのバリデーション
-var validateCommand = new Command("validate", "ローカルの拡張機能ファイルに対してバリデーションチェックを実行します（JSON / JavaScript / HTML / CSS）");
+var rdbmsOption = new Option<string?>("--rdbms", "SQL バリデーション対象の RDBMS（sqlserver / mysql / postgresql）");
+rdbmsOption.AddAlias("-r");
+
+var validateCommand = new Command("validate", "ローカルの拡張機能ファイルに対してバリデーションチェックを実行します（JSON / JavaScript / HTML / CSS / SQL）");
 validateCommand.AddOption(parametersPathOption);
+validateCommand.AddOption(rdbmsOption);
 
 validateCommand.SetHandler((InvocationContext context) =>
 {
@@ -109,8 +114,28 @@ validateCommand.SetHandler((InvocationContext context) =>
         return;
     }
 
+    var rdbmsValue = parseResult.GetValueForOption(rdbmsOption);
+    RdbmsType? rdbmsType = null;
+    if (rdbmsValue is not null)
+    {
+        rdbmsType = rdbmsValue.ToLowerInvariant() switch
+        {
+            "sqlserver" or "sql-server" or "mssql" => RdbmsType.SqlServer,
+            "mysql" => RdbmsType.MySql,
+            "postgresql" or "postgres" or "pgsql" => RdbmsType.PostgreSql,
+            _ => null,
+        };
+
+        if (rdbmsType is null)
+        {
+            Console.Error.WriteLine($"エラー: 不明な RDBMS '{rdbmsValue}'。sqlserver / mysql / postgresql のいずれかを指定してください。");
+            context.ExitCode = 1;
+            return;
+        }
+    }
+
     var fileService = new ExtensionsFileService();
-    var validator = new ContentValidator();
+    var validator = rdbmsType.HasValue ? new ContentValidator(rdbmsType.Value) : new ContentValidator();
     var entries = fileService.ReadAllEntries(parametersPath);
 
     Console.WriteLine($"バリデーション対象ファイル数: {entries.Count}");

@@ -10,17 +10,35 @@ namespace VehicleVision.Pleasanter.ExtensionsTools.Common.Services;
 /// <remarks>
 /// 各 ExtensionType に応じて以下のチェックを行います:
 ///
-/// | ExtensionType           | 設定 JSON | コンテンツ            |
-/// |-------------------------|-----------|-----------------------|
-/// | Script                  | —         | JavaScript 簡易構文   |
-/// | Style                   | —         | CSS 簡易構文          |
-/// | Html                    | —         | HTML 簡易構文（断片） |
-/// | ServerScript            | JSON      | JavaScript 簡易構文   |
-/// | Sql                     | JSON      | —                     |
-/// | Fields / NavigationMenu / Plugin | JSON | —              |
+/// | ExtensionType           | 設定 JSON | コンテンツ                          |
+/// |-------------------------|-----------|-------------------------------------|
+/// | Script                  | —         | JavaScript 簡易構文                 |
+/// | Style                   | —         | CSS 簡易構文                        |
+/// | Html                    | —         | HTML 簡易構文（断片）               |
+/// | ServerScript            | JSON      | JavaScript 簡易構文                 |
+/// | Sql                     | JSON      | SQL 簡易構文（RDBMS 指定時のみ）    |
+/// | Fields / NavigationMenu / Plugin | JSON | —                            |
 /// </remarks>
 public partial class ContentValidator : IContentValidator
 {
+    private readonly RdbmsType? _rdbmsType;
+
+    /// <summary>
+    /// ContentValidator を初期化します
+    /// </summary>
+    public ContentValidator()
+    {
+    }
+
+    /// <summary>
+    /// RDBMS 種別を指定して ContentValidator を初期化します
+    /// </summary>
+    /// <param name="rdbmsType">SQL バリデーションに使用する RDBMS 種別</param>
+    public ContentValidator(RdbmsType rdbmsType)
+    {
+        _rdbmsType = rdbmsType;
+    }
+
     /// <inheritdoc/>
     public IReadOnlyList<ValidationResult> ValidateAll(IReadOnlyList<ExtensionFileEntry> entries)
     {
@@ -54,6 +72,7 @@ public partial class ContentValidator : IContentValidator
                 "Script" or "ServerScript" => ValidateJavaScript(entry, entry.Content, entry.ContentFilePath),
                 "Style" => ValidateCss(entry, entry.Content, entry.ContentFilePath),
                 "Html" => ValidateHtml(entry, entry.Content, entry.ContentFilePath),
+                "Sql" when _rdbmsType is not null => ValidateSql(entry, entry.Content, entry.ContentFilePath, _rdbmsType.Value),
                 _ => null,
             };
 
@@ -294,6 +313,167 @@ public partial class ContentValidator : IContentValidator
         return tagName is "area" or "base" or "br" or "col" or "embed"
             or "hr" or "img" or "input" or "link" or "meta"
             or "param" or "source" or "track" or "wbr";
+    }
+
+    /// <summary>
+    /// SQL の簡易構文チェックを実行します
+    /// </summary>
+    /// <remarks>
+    /// RDBMS 固有のコメント・識別子クォート・文字列リテラルを考慮したうえで、
+    /// 丸括弧のバランスおよび文字列リテラルの閉じ忘れを検出します。
+    /// </remarks>
+    internal static ValidationResult ValidateSql(
+        ExtensionFileEntry entry, string content, string? filePath, RdbmsType rdbmsType)
+    {
+        var errors = new List<string>();
+
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return CreateResult(entry, filePath, errors);
+        }
+
+        CheckSqlSyntax(content, errors, rdbmsType);
+
+        return CreateResult(entry, filePath, errors);
+    }
+
+    /// <summary>
+    /// SQL のコメント・文字列・識別子を除去し、丸括弧バランスを検査します
+    /// </summary>
+    private static void CheckSqlSyntax(string content, List<string> errors, RdbmsType rdbmsType)
+    {
+        var i = 0;
+        var parenCount = 0;
+
+        while (i < content.Length)
+        {
+            // ブロックコメント /* ... */ （全 RDBMS 共通）
+            if (i + 1 < content.Length && content[i] == '/' && content[i + 1] == '*')
+            {
+                var end = content.IndexOf("*/", i + 2, StringComparison.Ordinal);
+                if (end < 0)
+                {
+                    errors.Add("ブロックコメント '/*' が閉じられていません。");
+                    return;
+                }
+
+                i = end + 2;
+                continue;
+            }
+
+            // 行コメント -- （全 RDBMS 共通）
+            if (i + 1 < content.Length && content[i] == '-' && content[i + 1] == '-')
+            {
+                var end = content.IndexOf('\n', i + 2);
+                i = end < 0 ? content.Length : end + 1;
+                continue;
+            }
+
+            // 行コメント # （MySQL のみ）
+            if (rdbmsType == RdbmsType.MySql && content[i] == '#')
+            {
+                var end = content.IndexOf('\n', i + 1);
+                i = end < 0 ? content.Length : end + 1;
+                continue;
+            }
+
+            // シングルクォート文字列 '...'（全 RDBMS 共通、'' でエスケープ）
+            if (content[i] == '\'')
+            {
+                i++;
+                while (i < content.Length)
+                {
+                    if (content[i] == '\'')
+                    {
+                        if (i + 1 < content.Length && content[i + 1] == '\'')
+                        {
+                            i += 2;
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        i++;
+                    }
+                }
+
+                if (i >= content.Length)
+                {
+                    errors.Add("文字列リテラル（シングルクォート）が閉じられていません。");
+                    return;
+                }
+
+                i++;
+                continue;
+            }
+
+            // SQL Server: 角括弧識別子 [...]
+            if (rdbmsType == RdbmsType.SqlServer && content[i] == '[')
+            {
+                var end = content.IndexOf(']', i + 1);
+                if (end < 0)
+                {
+                    errors.Add("角括弧識別子 '[' が閉じられていません。");
+                    return;
+                }
+
+                i = end + 1;
+                continue;
+            }
+
+            // MySQL: バッククォート識別子 `...`
+            if (rdbmsType == RdbmsType.MySql && content[i] == '`')
+            {
+                var end = content.IndexOf('`', i + 1);
+                if (end < 0)
+                {
+                    errors.Add("バッククォート識別子が閉じられていません。");
+                    return;
+                }
+
+                i = end + 1;
+                continue;
+            }
+
+            // PostgreSQL: ダブルクォート識別子 "..."
+            if (rdbmsType == RdbmsType.PostgreSql && content[i] == '"')
+            {
+                var end = content.IndexOf('"', i + 1);
+                if (end < 0)
+                {
+                    errors.Add("ダブルクォート識別子が閉じられていません。");
+                    return;
+                }
+
+                i = end + 1;
+                continue;
+            }
+
+            // 丸括弧バランスチェック
+            if (content[i] == '(')
+            {
+                parenCount++;
+            }
+            else if (content[i] == ')')
+            {
+                parenCount--;
+                if (parenCount < 0)
+                {
+                    errors.Add("閉じ丸括弧 ')' が対応する開き丸括弧 '(' より多くあります。");
+                    return;
+                }
+            }
+
+            i++;
+        }
+
+        if (parenCount != 0)
+        {
+            errors.Add($"丸括弧 '(' ')' の対応が一致しません（差分: {parenCount}）。");
+        }
     }
 
     private static ValidationResult CreateResult(

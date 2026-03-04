@@ -555,16 +555,16 @@ public class ContentValidatorTests
         Assert.All(results, r => Assert.False(r.IsValid));
     }
 
-    // ---- SQL は構文チェックなし ----
+    // ---- SQL バリデーション（RDBMS 未指定時） ----
 
     [Fact]
-    public void ValidateShouldOnlyValidateJsonForSqlType()
+    public void ValidateShouldOnlyValidateJsonForSqlTypeWhenNoRdbms()
     {
-        // Arrange
+        // Arrange — RDBMS 未指定のため SQL コンテンツはチェックしない
         var entry = CreateEntry(
             "Sql",
             settingsJson: """{"Name": "my-query"}""",
-            content: "SELECT * FROM invalid syntax {{{{");
+            content: "SELECT * FROM invalid syntax ((((");
 
         // Act
         var results = _sut.Validate(entry);
@@ -573,6 +573,399 @@ public class ContentValidatorTests
         var result = Assert.Single(results);
         Assert.True(result.IsValid);
         Assert.Equal("Sql", result.ExtensionType);
+    }
+
+    // ---- SQL バリデーション（全 RDBMS 共通） ----
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldPassForValidSelectStatement(RdbmsType rdbmsType)
+    {
+        // Arrange
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: "SELECT * FROM Users WHERE Id = 1;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldPassForSqlWithSubquery(RdbmsType rdbmsType)
+    {
+        // Arrange
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: "SELECT * FROM Users WHERE Id IN (SELECT UserId FROM Admins);");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldFailForUnbalancedParensInSql(RdbmsType rdbmsType)
+    {
+        // Arrange
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: "SELECT * FROM Users WHERE Id IN (1, 2, 3;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("丸括弧"));
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldFailForExtraClosingParenInSql(RdbmsType rdbmsType)
+    {
+        // Arrange
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: "SELECT COUNT(*) FROM Users);");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("閉じ丸括弧"));
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldPassForSqlWithLineComment(RdbmsType rdbmsType)
+    {
+        // Arrange — 行コメント内の括弧は無視される
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: """
+            -- This comment has ( unbalanced paren
+            SELECT * FROM Users;
+            """);
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldPassForSqlWithBlockComment(RdbmsType rdbmsType)
+    {
+        // Arrange — ブロックコメント内の括弧は無視される
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: """
+            /* This comment has (( unbalanced parens */
+            SELECT COUNT(*) FROM Users;
+            """);
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldFailForUnclosedBlockComment(RdbmsType rdbmsType)
+    {
+        // Arrange
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: "/* unclosed comment SELECT * FROM Users;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("ブロックコメント"));
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldPassForSqlWithStringLiteral(RdbmsType rdbmsType)
+    {
+        // Arrange — 文字列内の括弧は無視される
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: "SELECT * FROM Users WHERE Name = 'hello ( world';");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldPassForSqlWithEscapedQuote(RdbmsType rdbmsType)
+    {
+        // Arrange — '' でエスケープされたシングルクォートを正しく処理
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: "SELECT * FROM Users WHERE Name = 'it''s a test';");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldFailForUnclosedStringLiteral(RdbmsType rdbmsType)
+    {
+        // Arrange
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: "SELECT * FROM Users WHERE Name = 'unclosed");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("文字列リテラル"));
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldPassForEmptySqlContent(RdbmsType rdbmsType)
+    {
+        // Arrange
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry("Sql", content: "   ");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Theory]
+    [InlineData(RdbmsType.SqlServer)]
+    [InlineData(RdbmsType.MySql)]
+    [InlineData(RdbmsType.PostgreSql)]
+    public void ValidateShouldValidateBothJsonAndSqlForSqlType(RdbmsType rdbmsType)
+    {
+        // Arrange — JSON 設定 + SQL コンテンツ両方をバリデーション
+        var validator = new ContentValidator(rdbmsType);
+        var entry = CreateEntry(
+            "Sql",
+            settingsJson: """{"Name": "my-query"}""",
+            content: "SELECT COUNT(*) FROM Users;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        Assert.Equal(2, results.Count);
+        Assert.All(results, r => Assert.True(r.IsValid));
+    }
+
+    // ---- SQL Server 固有 ----
+
+    [Fact]
+    public void ValidateShouldPassForSqlServerBracketIdentifier()
+    {
+        // Arrange — [identifier] を正しくスキップ
+        var validator = new ContentValidator(RdbmsType.SqlServer);
+        var entry = CreateEntry("Sql", content: "SELECT [User Name] FROM [dbo].[Users];");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void ValidateShouldFailForUnclosedSqlServerBracketIdentifier()
+    {
+        // Arrange
+        var validator = new ContentValidator(RdbmsType.SqlServer);
+        var entry = CreateEntry("Sql", content: "SELECT [User Name FROM Users;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("角括弧識別子"));
+    }
+
+    [Fact]
+    public void ValidateShouldPassForSqlServerTopQuery()
+    {
+        // Arrange
+        var validator = new ContentValidator(RdbmsType.SqlServer);
+        var entry = CreateEntry("Sql", content: "SELECT TOP(10) * FROM Users;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    // ---- MySQL 固有 ----
+
+    [Fact]
+    public void ValidateShouldPassForMySqlBacktickIdentifier()
+    {
+        // Arrange — `identifier` を正しくスキップ
+        var validator = new ContentValidator(RdbmsType.MySql);
+        var entry = CreateEntry("Sql", content: "SELECT `User Name` FROM `Users`;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void ValidateShouldFailForUnclosedMySqlBacktickIdentifier()
+    {
+        // Arrange
+        var validator = new ContentValidator(RdbmsType.MySql);
+        var entry = CreateEntry("Sql", content: "SELECT `User Name FROM Users;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("バッククォート識別子"));
+    }
+
+    [Fact]
+    public void ValidateShouldPassForMySqlHashComment()
+    {
+        // Arrange — MySQL の # コメント内の括弧は無視
+        var validator = new ContentValidator(RdbmsType.MySql);
+        var entry = CreateEntry("Sql", content: """
+            # This comment has ( unbalanced paren
+            SELECT * FROM Users;
+            """);
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void ValidateShouldPassForMySqlLimitQuery()
+    {
+        // Arrange
+        var validator = new ContentValidator(RdbmsType.MySql);
+        var entry = CreateEntry("Sql", content: "SELECT * FROM Users LIMIT 10;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    // ---- PostgreSQL 固有 ----
+
+    [Fact]
+    public void ValidateShouldPassForPostgreSqlDoubleQuoteIdentifier()
+    {
+        // Arrange — "identifier" を正しくスキップ
+        var validator = new ContentValidator(RdbmsType.PostgreSql);
+        var entry = CreateEntry("Sql", content: """SELECT "User Name" FROM "Users";""");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
+    [Fact]
+    public void ValidateShouldFailForUnclosedPostgreSqlDoubleQuoteIdentifier()
+    {
+        // Arrange
+        var validator = new ContentValidator(RdbmsType.PostgreSql);
+        var entry = CreateEntry("Sql", content: """SELECT "User Name FROM Users;""");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.False(result.IsValid);
+        Assert.Contains(result.Errors, e => e.Contains("ダブルクォート識別子"));
+    }
+
+    [Fact]
+    public void ValidateShouldPassForPostgreSqlTypeCast()
+    {
+        // Arrange
+        var validator = new ContentValidator(RdbmsType.PostgreSql);
+        var entry = CreateEntry("Sql", content: "SELECT '123'::integer FROM Users;");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
     }
 
     // ---- ヘルパー ----
