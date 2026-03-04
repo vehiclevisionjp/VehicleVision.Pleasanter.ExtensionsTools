@@ -968,6 +968,21 @@ public class ContentValidatorTests
         Assert.True(result.IsValid);
     }
 
+    [Fact]
+    public void ValidateShouldPassForPostgreSqlEscapedDoubleQuoteIdentifier()
+    {
+        // Arrange — PostgreSQL では "" で識別子内のダブルクォートをエスケープ
+        var validator = new ContentValidator(RdbmsType.PostgreSql);
+        var entry = CreateEntry("Sql", content: """SELECT "User""Name" FROM "Users";""");
+
+        // Act
+        var results = validator.Validate(entry);
+
+        // Assert
+        var result = Assert.Single(results);
+        Assert.True(result.IsValid);
+    }
+
     // ---- ヘルパー ----
 
     private static ExtensionFileEntry CreateEntry(

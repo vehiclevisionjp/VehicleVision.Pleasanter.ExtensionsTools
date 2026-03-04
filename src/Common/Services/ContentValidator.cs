@@ -380,33 +380,12 @@ public partial class ContentValidator : IContentValidator
             // シングルクォート文字列 '...'（全 RDBMS 共通、'' でエスケープ）
             if (content[i] == '\'')
             {
-                i++;
-                while (i < content.Length)
-                {
-                    if (content[i] == '\'')
-                    {
-                        if (i + 1 < content.Length && content[i + 1] == '\'')
-                        {
-                            i += 2;
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        i++;
-                    }
-                }
-
-                if (i >= content.Length)
+                if (!TrySkipQuotedSection(content, ref i, '\''))
                 {
                     errors.Add("文字列リテラル（シングルクォート）が閉じられていません。");
                     return;
                 }
 
-                i++;
                 continue;
             }
 
@@ -438,17 +417,15 @@ public partial class ContentValidator : IContentValidator
                 continue;
             }
 
-            // PostgreSQL: ダブルクォート識別子 "..."
+            // PostgreSQL: ダブルクォート識別子 "..."（"" でエスケープ）
             if (rdbmsType == RdbmsType.PostgreSql && content[i] == '"')
             {
-                var end = content.IndexOf('"', i + 1);
-                if (end < 0)
+                if (!TrySkipQuotedSection(content, ref i, '"'))
                 {
                     errors.Add("ダブルクォート識別子が閉じられていません。");
                     return;
                 }
 
-                i = end + 1;
                 continue;
             }
 
@@ -474,6 +451,40 @@ public partial class ContentValidator : IContentValidator
         {
             errors.Add($"丸括弧 '(' ')' の対応が一致しません（差分: {parenCount}）。");
         }
+    }
+
+    /// <summary>
+    /// クォート文字で囲まれたセクション（文字列リテラルまたは識別子）をスキップします。
+    /// クォート文字の重複（例: <c>''</c> や <c>""</c>）によるエスケープに対応します。
+    /// </summary>
+    /// <param name="content">対象テキスト</param>
+    /// <param name="index">開始位置（クォート文字の位置）。成功時は閉じクォートの次の位置に更新されます。</param>
+    /// <param name="quoteChar">クォート文字（<c>'</c> または <c>"</c>）</param>
+    /// <returns>正常にスキップできた場合は true、未閉じの場合は false</returns>
+    private static bool TrySkipQuotedSection(string content, ref int index, char quoteChar)
+    {
+        var i = index + 1;
+        while (i < content.Length)
+        {
+            if (content[i] == quoteChar)
+            {
+                if (i + 1 < content.Length && content[i + 1] == quoteChar)
+                {
+                    i += 2;
+                }
+                else
+                {
+                    index = i + 1;
+                    return true;
+                }
+            }
+            else
+            {
+                i++;
+            }
+        }
+
+        return false;
     }
 
     private static ValidationResult CreateResult(
