@@ -1,12 +1,12 @@
-# {{PROJECT_NAME}} Wiki
+# VehicleVision.Pleasanter.ExtensionsTools Wiki
 
-{{PROJECT_NAME}} のドキュメントへようこそ。
+VehicleVision.Pleasanter.ExtensionsTools のドキュメントへようこそ。
 
 ## ドキュメント一覧
 
-<!-- TODO: Wikiドキュメントを追加したらここにリンクを記載 -->
+- [ExtensionsSyncTool 使用ガイド](extensions-sync-tool.md)
 
 ## 関連リンク
 
-- [README](https://github.com/vehiclevisionjp/{{PROJECT_NAME}})
-- [コントリビューションガイド](https://github.com/vehiclevisionjp/{{PROJECT_NAME}}/blob/main/CONTRIBUTING.md)
+- [README](https://github.com/vehiclevisionjp/VehicleVision.Pleasanter.ExtensionsTools)
+- [コントリビューションガイド](https://github.com/vehiclevisionjp/VehicleVision.Pleasanter.ExtensionsTools/blob/main/CONTRIBUTING.md)
