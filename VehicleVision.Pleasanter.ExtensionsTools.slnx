@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/ExtensionsSyncTool/ExtensionsSyncTool.csproj" />
+    <Project Path="src/ExtensionsDiffViewer/ExtensionsDiffViewer.csproj" />
   </Folder>
   <Folder Name="/src/Common/">
     <Project Path="src/Common/VehicleVision.Pleasanter.ExtensionsTools.Common.csproj" />

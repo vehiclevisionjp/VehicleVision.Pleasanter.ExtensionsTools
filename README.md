@@ -6,7 +6,7 @@
 
 <!-- markdownlint-enable MD013 -->
 
-プリザンターの **Extensions テーブル**とローカルの **Parameters フォルダ**を双方向に同期するクロスプラットフォーム対応 CLI ツールです。
+プリザンターの **Extensions テーブル**とローカルの **Parameters フォルダ**を双方向に同期するクロスプラットフォーム対応ツールです。CLI ツールに加え、WinMerge 風の差分ビューアデスクトップアプリを提供します。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -17,10 +17,11 @@
     - [ビルド](#ビルド)
 - [使用方法](#使用方法)
     - [設定](#設定)
-    - [コマンド](#コマンド)
+    - [コマンド（CLI）](#コマンドcli)
         - [pull（DB → ファイル）](#pulldb--ファイル)
         - [push（ファイル → DB）](#pushファイル--db)
         - [ドライラン](#ドライラン)
+    - [デスクトップ版（ExtensionsDiffViewer）](#デスクトップ版extensionsdiffviewer)
 - [プロジェクト構成](#プロジェクト構成)
 - [サードパーティライセンス](#サードパーティライセンス)
 - [セキュリティ](#セキュリティ)
@@ -79,7 +80,7 @@ npm install
 
 > **注意**: `local.config.json` は `.gitignore` に含まれているため、API キー等の機密情報をローカル設定として安全に管理できます。
 
-### コマンド
+### コマンド（CLI）
 
 #### pull（DB → ファイル）
 
@@ -112,6 +113,27 @@ dotnet run --project src/ExtensionsSyncTool -- pull --dry-run ...
 dotnet run --project src/ExtensionsSyncTool -- push --dry-run ...
 ```
 
+### デスクトップ版（ExtensionsDiffViewer）
+
+WinMerge 風の左右ペインでサーバー（DB）とローカル（ファイル）の差分を視覚的に比較できるデスクトップアプリケーションです。
+
+#### 起動方法
+
+```bash
+dotnet run --project src/ExtensionsDiffViewer
+```
+
+#### 機能
+
+- **差分比較**: サーバーとローカルの拡張機能を一覧表示し、差分ステータス（一致・変更あり・サーバーのみ・ローカルのみ）を色分け表示
+- **左右ペイン**: 選択した拡張機能のサーバー側・ローカル側コンテンツを左右に並べて表示
+- **個別 Pull/Push**: 差分を確認しながら、個別の拡張機能を Pull（サーバー → ローカル）または Push（ローカル → サーバー）
+- **全件 Pull/Push**: すべての拡張機能を一括で同期
+
+#### 設定
+
+CLI ツールと同じ設定方法（`appsettings.json`、`local.config.json`、環境変数）が使用できます。GUI 上部の入力欄からも直接設定できます。
+
 ## プロジェクト構成
 
 ```text
@@ -120,9 +142,12 @@ VehicleVision.Pleasanter.ExtensionsTools/
 ├── src/
 │   ├── Common/                     # 共有クラスライブラリ
 │   │   ├── Configuration/          # 設定クラス
-│   │   ├── Models/                 # データモデル・API モデル
-│   │   └── Services/               # ビジネスロジック（API クライアント・ファイルサービス・同期）
-│   └── ExtensionsSyncTool/         # 同期 CLI ツール（Program.cs のみ）
+│   │   ├── Models/                 # データモデル・API モデル・差分モデル
+│   │   └── Services/               # ビジネスロジック（API クライアント・ファイルサービス・同期・差分比較）
+│   ├── ExtensionsSyncTool/         # 同期 CLI ツール（Program.cs のみ）
+│   └── ExtensionsDiffViewer/       # デスクトップ版 差分ビューア（Avalonia UI）
+│       ├── ViewModels/             # MVVM ViewModel
+│       └── Views/                  # AXAML ビュー
 ├── tests/
 │   └── ExtensionsSyncTool.Tests/   # xUnit テストプロジェクト
 ├── .github/                        # GitHub 設定（CI/CD、セキュリティポリシー等）
@@ -157,6 +182,8 @@ VehicleVision.Pleasanter.ExtensionsTools/
 | [Microsoft.Extensions.Http](https://github.com/dotnet/runtime)   | MIT | .NET Foundation |
 | [Microsoft.Extensions.Configuration](https://github.com/dotnet/runtime) | MIT | .NET Foundation |
 | [Microsoft.Extensions.DependencyInjection](https://github.com/dotnet/runtime) | MIT | .NET Foundation |
+| [Avalonia](https://github.com/AvaloniaUI/Avalonia)               | MIT | AvaloniaUI OÜ |
+| [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) | MIT | .NET Foundation |
 
 ライセンスファイルの全文は [LICENSES](./LICENSES/) フォルダを参照してください。
 
