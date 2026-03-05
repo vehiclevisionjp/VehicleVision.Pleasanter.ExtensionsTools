@@ -5,6 +5,7 @@ VehicleVision.Pleasanter.ExtensionsTools のドキュメントへようこそ。
 ## ドキュメント一覧
 
 - [ExtensionsSyncTool 使用ガイド](extensions-sync-tool.md)
+- [ExtensionsDiffViewer 使用ガイド](extensions-diff-viewer.md)
 
 ## 関連リンク
 

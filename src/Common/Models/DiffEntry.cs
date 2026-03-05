@@ -14,16 +14,16 @@ public class DiffEntry
     /// <summary>比較ステータス</summary>
     public DiffStatus Status { get; set; }
 
-    /// <summary>サーバー側の設定 JSON（サーバーにのみ存在する場合は null）</summary>
+    /// <summary>サーバー側の設定 JSON（サーバーに存在しない場合は null）</summary>
     public string? ServerSettings { get; set; }
 
-    /// <summary>サーバー側のコンテンツ本体（サーバーにのみ存在する場合は null）</summary>
+    /// <summary>サーバー側のコンテンツ本体（サーバーに存在しない場合は null）</summary>
     public string? ServerBody { get; set; }
 
-    /// <summary>ローカル側の設定 JSON（ローカルにのみ存在する場合は null）</summary>
+    /// <summary>ローカル側の設定 JSON（ローカルに存在しない場合は null）</summary>
     public string? LocalSettings { get; set; }
 
-    /// <summary>ローカル側のコンテンツ本体（ローカルにのみ存在する場合は null）</summary>
+    /// <summary>ローカル側のコンテンツ本体（ローカルに存在しない場合は null）</summary>
     public string? LocalBody { get; set; }
 
     /// <summary>設定 JSON に差分があるかどうか</summary>
