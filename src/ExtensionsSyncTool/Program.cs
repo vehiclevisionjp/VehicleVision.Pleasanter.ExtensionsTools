@@ -4,6 +4,7 @@ using System.CommandLine.Parsing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using VehicleVision.Pleasanter.ExtensionsTools.Common.Configuration;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Models;
 using VehicleVision.Pleasanter.ExtensionsTools.Common.Services;
 
 // 設定ファイルの読み込み
@@ -91,10 +92,89 @@ pushCommand.SetHandler(async (InvocationContext context) =>
     }
 });
 
+// validate コマンド: ローカルファイルのバリデーション
+var rdbmsOption = new Option<string?>("--rdbms", "SQL バリデーション対象の RDBMS（sqlserver / mysql / postgresql）");
+rdbmsOption.AddAlias("-r");
+
+var validateCommand = new Command("validate", "ローカルの拡張機能ファイルに対してバリデーションチェックを実行します（JSON / JavaScript / HTML / CSS / SQL）");
+validateCommand.AddOption(parametersPathOption);
+validateCommand.AddOption(rdbmsOption);
+
+validateCommand.SetHandler((InvocationContext context) =>
+{
+    var parseResult = context.ParseResult;
+    var parametersPath = parseResult.GetValueForOption(parametersPathOption)
+        ?? configuration["ParametersPath"]
+        ?? string.Empty;
+
+    if (string.IsNullOrWhiteSpace(parametersPath))
+    {
+        Console.Error.WriteLine("エラー: ParametersPath が指定されていません。--parameters-path オプションまたは appsettings.json の ParametersPath を設定してください。");
+        context.ExitCode = 1;
+        return;
+    }
+
+    var rdbmsValue = parseResult.GetValueForOption(rdbmsOption);
+    RdbmsType? rdbmsType = null;
+    if (rdbmsValue is not null)
+    {
+        rdbmsType = rdbmsValue.ToLowerInvariant() switch
+        {
+            "sqlserver" or "sql-server" or "mssql" => RdbmsType.SqlServer,
+            "mysql" => RdbmsType.MySql,
+            "postgresql" or "postgres" or "pgsql" => RdbmsType.PostgreSql,
+            _ => null,
+        };
+
+        if (rdbmsType is null)
+        {
+            Console.Error.WriteLine($"エラー: 不明な RDBMS '{rdbmsValue}'。sqlserver / mysql / postgresql のいずれかを指定してください。");
+            context.ExitCode = 1;
+            return;
+        }
+    }
+
+    var fileService = new ExtensionsFileService();
+    var validator = rdbmsType.HasValue ? new ContentValidator(rdbmsType.Value) : new ContentValidator();
+    var entries = fileService.ReadAllEntries(parametersPath);
+
+    Console.WriteLine($"バリデーション対象ファイル数: {entries.Count}");
+
+    var results = validator.ValidateAll(entries);
+    var hasErrors = false;
+
+    foreach (var result in results)
+    {
+        var status = result.IsValid ? "OK" : "NG";
+        var fileInfo = result.FilePath is not null ? $" ({result.FilePath})" : string.Empty;
+        Console.WriteLine($"  [{status}] [{result.ExtensionType}] {result.ExtensionName}{fileInfo}");
+
+        if (!result.IsValid)
+        {
+            hasErrors = true;
+            foreach (var error in result.Errors)
+            {
+                Console.Error.WriteLine($"    → {error}");
+            }
+        }
+    }
+
+    if (hasErrors)
+    {
+        Console.Error.WriteLine("バリデーションエラーが見つかりました。");
+        context.ExitCode = 1;
+    }
+    else
+    {
+        Console.WriteLine("すべてのバリデーションが成功しました。");
+    }
+});
+
 // ルートコマンド
 var rootCommand = new RootCommand("プリザンター Extensions テーブルとローカルファイルを同期するツール");
 rootCommand.AddCommand(pullCommand);
 rootCommand.AddCommand(pushCommand);
+rootCommand.AddCommand(validateCommand);
 
 return await rootCommand.InvokeAsync(args).ConfigureAwait(false);
 
