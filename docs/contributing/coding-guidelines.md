@@ -220,14 +220,17 @@ public void SetApiKey(string apiKey)
 
 ### ディレクトリ構造
 
-<!-- TODO: プロジェクトに合わせて更新 -->
-
 ```text
-{{PROJECT_NAME}}/
-├── Models/
-│   ├── Request/
-│   └── Response/
-└── Helpers/
+VehicleVision.Pleasanter.ExtensionsTools/
+├── src/
+│   ├── Common/                           # 共有クラスライブラリ
+│   │   ├── Configuration/
+│   │   ├── Models/
+│   │   └── Services/
+│   └── ExtensionsSyncTool/               # CLI ツール
+└── tests/
+    └── ExtensionsSyncTool.Tests/
+        └── Services/
 ```
 
 ### usingディレクティブ
@@ -241,7 +244,7 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-using {{PROJECT_NAME}}.Models;
+using VehicleVision.Pleasanter.ExtensionsTools.Common.Models;
 ```
 
 ### ファイル内の順序

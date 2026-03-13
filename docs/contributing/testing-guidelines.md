@@ -25,21 +25,20 @@
 
 ### テストプロジェクト構成
 
-| 項目                     | 内容                     |
-| ------------------------ | ------------------------ |
-| プロジェクト名           | `{{PROJECT_NAME}}.Tests` |
-| テストフレームワーク     | xUnit                    |
-| ターゲットフレームワーク | .NET 10                  |
-| カバレッジツール         | coverlet.collector       |
+| 項目                     | 内容                                              |
+| ------------------------ | ------------------------------------------------- |
+| プロジェクト名           | `ExtensionsSyncTool.Tests`                        |
+| テストフレームワーク     | xUnit                                             |
+| ターゲットフレームワーク | .NET 10                                           |
+| カバレッジツール         | coverlet.collector                                |
 
 ### ディレクトリ構造
 
-<!-- TODO: プロジェクトに合わせて更新 -->
-
 ```text
-{{PROJECT_NAME}}.Tests/
-├── {{PROJECT_NAME}}.Tests.csproj
-└── (テストファイル)
+tests/ExtensionsSyncTool.Tests/
+├── ExtensionsSyncTool.Tests.csproj
+└── Services/
+    └── ExtensionsFileServiceTests.cs
 ```
 
 ---
