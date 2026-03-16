@@ -1,6 +1,6 @@
 # ドキュメントガイドライン
 
-このドキュメントでは、{{PROJECT_NAME}} プロジェクトのドキュメント作成規約について説明します。
+このドキュメントでは、VehicleVision.Pleasanter.ExtensionsTools プロジェクトのドキュメント作成規約について説明します。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -61,7 +61,8 @@ docs/
 │   └── toc-single.js
 └── wiki/
     ├── Home.md
-    └── (Wikiドキュメント)
+    ├── extensions-diff-viewer.md
+    └── extensions-sync-tool.md
 ```
 
 ### ファイル命名規則
@@ -123,6 +124,7 @@ npm run lint:md:fix
 | `format`        | Prettierでフォーマット            |
 | `format:check`  | フォーマットのチェック            |
 | `toc`           | doctocでTOCを一括更新             |
+| `toc:file`      | 単一ファイルのTOCを更新           |
 | `toc:all`       | TOC更新 + フォーマットを一括実行  |
 | `pdf`           | 全MarkdownをPDFに変換             |
 | `pdf:wiki`      | WikiドキュメントのみPDF変換       |

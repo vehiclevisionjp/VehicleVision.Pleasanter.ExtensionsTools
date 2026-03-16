@@ -1,6 +1,6 @@
 # CI/CD ワークフロー
 
-このドキュメントでは、{{PROJECT_NAME}} プロジェクトの CI/CD ワークフローについて説明します。
+このドキュメントでは、VehicleVision.Pleasanter.ExtensionsTools プロジェクトの CI/CD ワークフローについて説明します。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
