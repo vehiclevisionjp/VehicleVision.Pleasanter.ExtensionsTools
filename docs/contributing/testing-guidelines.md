@@ -1,6 +1,6 @@
 # テストガイドライン
 
-このドキュメントでは、{{PROJECT_NAME}} プロジェクトのテスト規約について説明します。
+このドキュメントでは、VehicleVision.Pleasanter.ExtensionsTools プロジェクトのテスト規約について説明します。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

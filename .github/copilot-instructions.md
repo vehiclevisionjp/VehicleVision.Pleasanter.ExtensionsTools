@@ -1,6 +1,6 @@
 # Copilot Instructions
 
-このリポジトリは **{{PROJECT_NAME}}** です。
+このリポジトリは **VehicleVision.Pleasanter.ExtensionsTools** です。
 
 ## プロジェクト情報
 

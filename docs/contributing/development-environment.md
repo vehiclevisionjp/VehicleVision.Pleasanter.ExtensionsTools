@@ -1,6 +1,6 @@
 # 開発環境構築ガイド
 
-このドキュメントでは、{{PROJECT_NAME}} プロジェクトの開発環境セットアップについて説明します。
+このドキュメントでは、VehicleVision.Pleasanter.ExtensionsTools プロジェクトの開発環境セットアップについて説明します。
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->

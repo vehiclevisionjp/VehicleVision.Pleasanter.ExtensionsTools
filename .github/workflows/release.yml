@@ -33,11 +33,10 @@ jobs:
         with:
           dotnet-version: "10.x"
 
-      # TODO: プロジェクトの csproj パスに合わせて変更すること
       - name: Get current version
         id: get_version
         run: |
-          CURRENT_VERSION=$(grep -oP '(?<=<Version>)[^<]+' {{PROJECT_NAME}}/{{PROJECT_NAME}}.csproj)
+          CURRENT_VERSION=$(grep -oP '(?<=<Version>)[^<]+' Directory.Build.props)
           echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
           echo "Current version: $CURRENT_VERSION"
 
@@ -66,10 +65,9 @@ jobs:
           echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "New version: $NEW_VERSION"
 
-      # TODO: プロジェクトの csproj パスに合わせて変更すること
-      - name: Update version in csproj
+      - name: Update version in Directory.Build.props
         run: |
-          sed -i 's|<Version>${{ steps.get_version.outputs.current_version }}</Version>|<Version>${{ steps.new_version.outputs.new_version }}</Version>|' {{PROJECT_NAME}}/{{PROJECT_NAME}}.csproj
+          sed -i 's|<Version>${{ steps.get_version.outputs.current_version }}</Version>|<Version>${{ steps.new_version.outputs.new_version }}</Version>|' Directory.Build.props
 
       - name: Build project
         run: dotnet build --configuration Release
