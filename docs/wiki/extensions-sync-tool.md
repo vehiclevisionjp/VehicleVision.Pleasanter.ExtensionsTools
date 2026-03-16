@@ -15,13 +15,14 @@
 - [コマンドリファレンス](#コマンドリファレンス)
     - [pull（DB → ファイル）](#pulldb--ファイル)
     - [push（ファイル → DB）](#pushファイル--db)
+    - [validate（ローカルファイル検証）](#validateローカルファイル検証)
 - [ファイルと DB のマッピング仕様](#ファイルと-db-のマッピング仕様)
     - [Script（ExtendedScripts）](#scriptextendedscripts)
     - [Style（ExtendedStyles）](#styleextendedstyles)
     - [Html（ExtendedHtmls）](#htmlextendedhtmls)
     - [ServerScript（ExtendedServerScripts）](#serverscriptextendedserverscripts)
     - [Sql（ExtendedSqls）](#sqlextendedsqls)
-    - [Fields・NavigationMenu・Plugin（JSON のみ）](#fieldsnavigationmenupluginJson-のみ)
+    - [Fields・NavigationMenu・Plugin（JSON のみ）](#fieldsnavigationmenupluginjson-のみ)
 - [設計上の注意事項](#設計上の注意事項)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -30,12 +31,13 @@
 
 ## 概要
 
-`ExtensionsSyncTool` は以下の 2 方向の同期をサポートします:
+`ExtensionsSyncTool` は以下のコマンドをサポートします:
 
-| 方向        | コマンド | 説明                                           |
-| ----------- | -------- | ---------------------------------------------- |
-| DB → ファイル | `pull`   | Extensions テーブルのレコードをファイルに書き出す |
-| ファイル → DB | `push`   | Parameters フォルダのファイルを DB に登録・更新  |
+| コマンド   | 方向          | 説明                                              |
+| ---------- | ------------- | ------------------------------------------------- |
+| `pull`     | DB → ファイル | Extensions テーブルのレコードをファイルに書き出す |
+| `push`     | ファイル → DB | Parameters フォルダのファイルを DB に登録・更新   |
+| `validate` | ローカルのみ  | 拡張機能ファイルのバリデーションチェック          |
 
 ---
 
@@ -55,9 +57,9 @@
 
 ```json
 {
-  "BaseUrl": "https://pleasanter.example.com",
-  "ApiKey": "REPLACE_WITH_YOUR_API_KEY",
-  "ParametersPath": "REPLACE_WITH_PARAMETERS_PATH"
+    "BaseUrl": "https://pleasanter.example.com",
+    "ApiKey": "REPLACE_WITH_YOUR_API_KEY",
+    "ParametersPath": "REPLACE_WITH_PARAMETERS_PATH"
 }
 ```
 
@@ -80,6 +82,7 @@ export EXTENSIONS_SYNC_ParametersPath="/path/to/Parameters"
 --api-key / -k     プリザンター API キー
 --parameters-path / -p  ローカルの Parameters ディレクトリのパス
 --dry-run / -n     ドライラン（書き込みを行わない）
+--rdbms / -r       SQL バリデーション対象の RDBMS（validate コマンド専用）
 ```
 
 ### 優先順位
@@ -124,72 +127,95 @@ dotnet run --project src/ExtensionsSyncTool -- push \
   --parameters-path /path/to/Parameters
 ```
 
+### validate（ローカルファイル検証）
+
+ローカルの拡張機能ファイルに対してバリデーションチェックを実行します。対象フォーマットは JSON / JavaScript / HTML / CSS / SQL です。
+
+```bash
+dotnet run --project src/ExtensionsSyncTool -- validate \
+  --parameters-path /path/to/Parameters
+```
+
+`--rdbms`（`-r`）オプションで SQL バリデーション対象の RDBMS を指定できます:
+
+```bash
+dotnet run --project src/ExtensionsSyncTool -- validate \
+  --parameters-path /path/to/Parameters \
+  --rdbms sqlserver
+```
+
+| オプション   | 説明                          |
+| ------------ | ----------------------------- |
+| `sqlserver`  | SQL Server 向けバリデーション |
+| `mysql`      | MySQL 向けバリデーション      |
+| `postgresql` | PostgreSQL 向けバリデーション |
+
 ---
 
 ## ファイルと DB のマッピング仕様
 
 ### Script（ExtendedScripts）
 
-| 項目              | 値                                      |
-| ----------------- | --------------------------------------- |
-| フォルダ          | `Parameters/ExtendedScripts/`           |
-| ファイル形式      | `{name}.js`                             |
-| ExtensionType     | `Script`                                |
-| ExtensionName     | ファイル名（拡張子除く）                |
-| Body              | ファイル内容（JavaScript）              |
-| ExtensionSettings | なし                                    |
+| 項目              | 値                            |
+| ----------------- | ----------------------------- |
+| フォルダ          | `Parameters/ExtendedScripts/` |
+| ファイル形式      | `{name}.js`                   |
+| ExtensionType     | `Script`                      |
+| ExtensionName     | ファイル名（拡張子除く）      |
+| Body              | ファイル内容（JavaScript）    |
+| ExtensionSettings | なし                          |
 
 ### Style（ExtendedStyles）
 
-| 項目              | 値                                      |
-| ----------------- | --------------------------------------- |
-| フォルダ          | `Parameters/ExtendedStyles/`            |
-| ファイル形式      | `{name}.css`                            |
-| ExtensionType     | `Style`                                 |
-| ExtensionName     | ファイル名（拡張子除く）                |
-| Body              | ファイル内容（CSS）                     |
-| ExtensionSettings | なし                                    |
+| 項目              | 値                           |
+| ----------------- | ---------------------------- |
+| フォルダ          | `Parameters/ExtendedStyles/` |
+| ファイル形式      | `{name}.css`                 |
+| ExtensionType     | `Style`                      |
+| ExtensionName     | ファイル名（拡張子除く）     |
+| Body              | ファイル内容（CSS）          |
+| ExtensionSettings | なし                         |
 
 ### Html（ExtendedHtmls）
 
-| 項目              | 値                                      |
-| ----------------- | --------------------------------------- |
-| フォルダ          | `Parameters/ExtendedHtmls/`             |
-| ファイル形式      | `{name}.html`                           |
-| ExtensionType     | `Html`                                  |
-| ExtensionName     | ファイル名（拡張子除く）                |
-| Body              | ファイル内容（HTML）                    |
-| ExtensionSettings | なし                                    |
+| 項目              | 値                          |
+| ----------------- | --------------------------- |
+| フォルダ          | `Parameters/ExtendedHtmls/` |
+| ファイル形式      | `{name}.html`               |
+| ExtensionType     | `Html`                      |
+| ExtensionName     | ファイル名（拡張子除く）    |
+| Body              | ファイル内容（HTML）        |
+| ExtensionSettings | なし                        |
 
 ### ServerScript（ExtendedServerScripts）
 
-| 項目              | 値                                                                       |
-| ----------------- | ------------------------------------------------------------------------ |
-| フォルダ          | `Parameters/ExtendedServerScripts/`                                      |
-| ファイル形式      | `{name}.json`（設定）+ `{name}.json.js`（スクリプト本体、任意）          |
-| ExtensionType     | `ServerScript`                                                           |
-| ExtensionName     | JSON ファイル名（拡張子除く）                                            |
-| Body              | `.json.js` ファイルの内容、または JSON 内 `Body` フィールドの値          |
-| ExtensionSettings | JSON ファイルの内容（`Body` フィールドを除く）                           |
+| 項目              | 値                                                              |
+| ----------------- | --------------------------------------------------------------- |
+| フォルダ          | `Parameters/ExtendedServerScripts/`                             |
+| ファイル形式      | `{name}.json`（設定）+ `{name}.json.js`（スクリプト本体、任意） |
+| ExtensionType     | `ServerScript`                                                  |
+| ExtensionName     | JSON ファイル名（拡張子除く）                                   |
+| Body              | `.json.js` ファイルの内容、または JSON 内 `Body` フィールドの値 |
+| ExtensionSettings | JSON ファイルの内容（`Body` フィールドを除く）                  |
 
 ### Sql（ExtendedSqls）
 
-| 項目              | 値                                                                       |
-| ----------------- | ------------------------------------------------------------------------ |
-| フォルダ          | `Parameters/ExtendedSqls/`                                               |
-| ファイル形式      | `{name}.json`（設定）+ `{name}.json.sql`（SQL 本体、任意）               |
-| ExtensionType     | `Sql`                                                                    |
-| ExtensionName     | JSON ファイル名（拡張子除く）                                            |
-| Body              | `.json.sql` ファイルの内容、または JSON 内 `CommandText` フィールドの値  |
-| ExtensionSettings | JSON ファイルの内容（`Body`・`CommandText` フィールドを除く）            |
+| 項目              | 値                                                                      |
+| ----------------- | ----------------------------------------------------------------------- |
+| フォルダ          | `Parameters/ExtendedSqls/`                                              |
+| ファイル形式      | `{name}.json`（設定）+ `{name}.json.sql`（SQL 本体、任意）              |
+| ExtensionType     | `Sql`                                                                   |
+| ExtensionName     | JSON ファイル名（拡張子除く）                                           |
+| Body              | `.json.sql` ファイルの内容、または JSON 内 `CommandText` フィールドの値 |
+| ExtensionSettings | JSON ファイルの内容（`Body`・`CommandText` フィールドを除く）           |
 
 ### Fields・NavigationMenu・Plugin（JSON のみ）
 
-| ExtensionType  | フォルダ                   | ファイル形式   |
-| -------------- | -------------------------- | -------------- |
-| Fields         | `ExtendedFields/`          | `{name}.json`  |
-| NavigationMenu | `ExtendedNavigationMenus/` | `{name}.json`  |
-| Plugin         | `ExtendedPlugins/`         | `{name}.json`  |
+| ExtensionType  | フォルダ                   | ファイル形式  |
+| -------------- | -------------------------- | ------------- |
+| Fields         | `ExtendedFields/`          | `{name}.json` |
+| NavigationMenu | `ExtendedNavigationMenus/` | `{name}.json` |
+| Plugin         | `ExtendedPlugins/`         | `{name}.json` |
 
 JSON ファイルの全内容が `ExtensionSettings` に格納されます。
 

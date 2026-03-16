@@ -5,22 +5,19 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [ドキュメントガイドライン](#ドキュメントガイドライン)
-  - [基本原則](#基本原則)
+- [基本原則](#基本原則)
     - [言語](#言語)
     - [対象読者](#対象読者)
-  - [ファイル構成](#ファイル構成)
+- [ファイル構成](#ファイル構成)
     - [ディレクトリ構造](#ディレクトリ構造)
     - [ファイル命名規則](#ファイル命名規則)
-      - [`docs/wiki/` 配下](#docswiki-配下)
-      - [`docs/contributing/` 配下](#docscontributing-配下)
-  - [Markdownスタイル](#markdownスタイル)
+- [Markdownスタイル](#markdownスタイル)
     - [基本ルール](#基本ルール)
     - [フォーマッター（Prettier）](#フォーマッターprettier)
     - [Linter（markdownlint）](#lintermarkdownlint)
-  - [npmスクリプト](#npmスクリプト)
-  - [TOC（目次）自動生成](#toc目次自動生成)
-  - [ドキュメント同期](#ドキュメント同期)
+- [npmスクリプト](#npmスクリプト)
+- [TOC（目次）自動生成](#toc目次自動生成)
+- [ドキュメント同期](#ドキュメント同期)
     - [更新ルール](#更新ルール)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -82,16 +79,16 @@ docs/
 
 ### 基本ルール
 
-| ルール                   | 内容                                      |
-| ------------------------ | ----------------------------------------- |
-| 見出し                   | ATX形式（`# H1`）を使用                  |
-| 見出しレベル             | 1つずつ順番に（H1 → H2 → H3）           |
-| リスト                   | `-` を使用（`*` は不可）                 |
-| コードブロック           | バッククォート3つで囲む                  |
-| 行の長さ               | 120文字以内（テーブル・コードブロック除外）|
-| 絵文字                   | 使用しない                                |
-| HTMLタグ                 | 原則使用しない（`<br>` のみ許可）         |
-| 型名                     | バッククォートで囲む（例: \`string\`）    |
+| ルール         | 内容                                        |
+| -------------- | ------------------------------------------- |
+| 見出し         | ATX形式（`# H1`）を使用                     |
+| 見出しレベル   | 1つずつ順番に（H1 → H2 → H3）               |
+| リスト         | `-` を使用（`*` は不可）                    |
+| コードブロック | バッククォート3つで囲む                     |
+| 行の長さ       | 120文字以内（テーブル・コードブロック除外） |
+| 絵文字         | 使用しない                                  |
+| HTMLタグ       | 原則使用しない（`<br>` のみ許可）           |
+| 型名           | バッククォートで囲む（例: \`string\`）      |
 
 ### フォーマッター（Prettier）
 
@@ -117,17 +114,17 @@ npm run lint:md:fix
 
 ## npmスクリプト
 
-| スクリプト      | 説明                              |
-| --------------- | --------------------------------- |
-| `lint:md`       | Markdownの構文チェック            |
-| `lint:md:fix`   | Markdownのlintエラーを自動修正    |
-| `format`        | Prettierでフォーマット            |
-| `format:check`  | フォーマットのチェック            |
-| `toc`           | doctocでTOCを一括更新             |
-| `toc:file`      | 単一ファイルのTOCを更新           |
-| `toc:all`       | TOC更新 + フォーマットを一括実行  |
-| `pdf`           | 全MarkdownをPDFに変換             |
-| `pdf:wiki`      | WikiドキュメントのみPDF変換       |
+| スクリプト     | 説明                             |
+| -------------- | -------------------------------- |
+| `lint:md`      | Markdownの構文チェック           |
+| `lint:md:fix`  | Markdownのlintエラーを自動修正   |
+| `format`       | Prettierでフォーマット           |
+| `format:check` | フォーマットのチェック           |
+| `toc`          | doctocでTOCを一括更新            |
+| `toc:file`     | 単一ファイルのTOCを更新          |
+| `toc:all`      | TOC更新 + フォーマットを一括実行 |
+| `pdf`          | 全MarkdownをPDFに変換            |
+| `pdf:wiki`     | WikiドキュメントのみPDF変換      |
 
 ---
 
@@ -151,9 +148,9 @@ VS Codeでは **RunOnSave** 拡張機能により、`docs/` 配下のMarkdownフ
 
 ### 更新ルール
 
-| 変更内容                                | 更新が必要なドキュメント                                      |
-| --------------------------------------- | ------------------------------------------------------------- |
-| 公開APIの追加・変更                     | `docs/wiki/` 配下の該当ドキュメント                           |
-| ガイドラインの追加                      | `CONTRIBUTING.md` および `.github/copilot-instructions.md`    |
-| プロジェクト設定の変更                  | `README.md` および `.github/copilot-instructions.md`          |
-| セキュリティ脆弱性の報告対応            | `README.md` の謝辞セクション（報告者名を追記）                |
+| 変更内容                     | 更新が必要なドキュメント                                   |
+| ---------------------------- | ---------------------------------------------------------- |
+| 公開APIの追加・変更          | `docs/wiki/` 配下の該当ドキュメント                        |
+| ガイドラインの追加           | `CONTRIBUTING.md` および `.github/copilot-instructions.md` |
+| プロジェクト設定の変更       | `README.md` および `.github/copilot-instructions.md`       |
+| セキュリティ脆弱性の報告対応 | `README.md` の謝辞セクション（報告者名を追記）             |

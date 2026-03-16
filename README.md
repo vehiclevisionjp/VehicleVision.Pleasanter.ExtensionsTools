@@ -18,11 +18,9 @@
 - [使用方法](#使用方法)
     - [設定](#設定)
     - [コマンド（CLI）](#コマンドcli)
-        - [pull（DB → ファイル）](#pulldb--ファイル)
-        - [push（ファイル → DB）](#pushファイル--db)
-        - [ドライラン](#ドライラン)
     - [デスクトップ版（ExtensionsDiffViewer）](#デスクトップ版extensionsdiffviewer)
 - [プロジェクト構成](#プロジェクト構成)
+    - [ファイルと Extensions テーブルのマッピング](#ファイルと-extensions-テーブルのマッピング)
 - [サードパーティライセンス](#サードパーティライセンス)
 - [セキュリティ](#セキュリティ)
 - [謝辞](#謝辞)
@@ -66,17 +64,17 @@ npm install
 
 ```json
 {
-  "BaseUrl": "https://pleasanter.example.com",
-  "ApiKey": "REPLACE_WITH_YOUR_API_KEY",
-  "ParametersPath": "REPLACE_WITH_PARAMETERS_PATH"
+    "BaseUrl": "https://pleasanter.example.com",
+    "ApiKey": "REPLACE_WITH_YOUR_API_KEY",
+    "ParametersPath": "REPLACE_WITH_PARAMETERS_PATH"
 }
 ```
 
-| 設定キー        | 環境変数                         | 説明                                   |
-| --------------- | -------------------------------- | -------------------------------------- |
-| `BaseUrl`       | `EXTENSIONS_SYNC_BaseUrl`        | プリザンターサーバーのベース URL       |
-| `ApiKey`        | `EXTENSIONS_SYNC_ApiKey`         | プリザンター API キー                  |
-| `ParametersPath`| `EXTENSIONS_SYNC_ParametersPath` | ローカルの Parameters ディレクトリパス |
+| 設定キー         | 環境変数                         | 説明                                   |
+| ---------------- | -------------------------------- | -------------------------------------- |
+| `BaseUrl`        | `EXTENSIONS_SYNC_BaseUrl`        | プリザンターサーバーのベース URL       |
+| `ApiKey`         | `EXTENSIONS_SYNC_ApiKey`         | プリザンター API キー                  |
+| `ParametersPath` | `EXTENSIONS_SYNC_ParametersPath` | ローカルの Parameters ディレクトリパス |
 
 > **注意**: `local.config.json` は `.gitignore` に含まれているため、API キー等の機密情報をローカル設定として安全に管理できます。
 
@@ -102,6 +100,23 @@ dotnet run --project src/ExtensionsSyncTool -- push \
   --base-url https://pleasanter.example.com \
   --api-key YOUR_API_KEY \
   --parameters-path /path/to/Parameters
+```
+
+#### validate（ローカルファイル検証）
+
+ローカルの拡張機能ファイルに対してバリデーションチェックを実行します（JSON / JavaScript / HTML / CSS / SQL）。
+
+```bash
+dotnet run --project src/ExtensionsSyncTool -- validate \
+  --parameters-path /path/to/Parameters
+```
+
+SQL バリデーションで RDBMS を指定する場合:
+
+```bash
+dotnet run --project src/ExtensionsSyncTool -- validate \
+  --parameters-path /path/to/Parameters \
+  --rdbms sqlserver
 ```
 
 #### ドライラン
@@ -161,29 +176,29 @@ VehicleVision.Pleasanter.ExtensionsTools/
 
 ### ファイルと Extensions テーブルのマッピング
 
-| ExtensionType  | Parameters フォルダ       | ファイル形式              |
-| -------------- | ------------------------- | ------------------------- |
-| Script         | `ExtendedScripts/`        | `*.js`                    |
-| Style          | `ExtendedStyles/`         | `*.css`                   |
-| Html           | `ExtendedHtmls/`          | `*.html`                  |
-| ServerScript   | `ExtendedServerScripts/`  | `*.json` + `*.json.js`    |
-| Sql            | `ExtendedSqls/`           | `*.json` + `*.json.sql`   |
-| Fields         | `ExtendedFields/`         | `*.json`                  |
-| NavigationMenu | `ExtendedNavigationMenus/`| `*.json`                  |
-| Plugin         | `ExtendedPlugins/`        | `*.json`                  |
+| ExtensionType  | Parameters フォルダ        | ファイル形式            |
+| -------------- | -------------------------- | ----------------------- |
+| Script         | `ExtendedScripts/`         | `*.js`                  |
+| Style          | `ExtendedStyles/`          | `*.css`                 |
+| Html           | `ExtendedHtmls/`           | `*.html`                |
+| ServerScript   | `ExtendedServerScripts/`   | `*.json` + `*.json.js`  |
+| Sql            | `ExtendedSqls/`            | `*.json` + `*.json.sql` |
+| Fields         | `ExtendedFields/`          | `*.json`                |
+| NavigationMenu | `ExtendedNavigationMenus/` | `*.json`                |
+| Plugin         | `ExtendedPlugins/`         | `*.json`                |
 
 ## サードパーティライセンス
 
 このプロジェクトは以下のサードパーティライブラリを使用しています：
 
-| ライブラリ                                      | ライセンス | 著作権                      |
-| ----------------------------------------------- | ---------- | --------------------------- |
-| [System.CommandLine](https://github.com/dotnet/command-line-api) | MIT | .NET Foundation |
-| [Microsoft.Extensions.Http](https://github.com/dotnet/runtime)   | MIT | .NET Foundation |
-| [Microsoft.Extensions.Configuration](https://github.com/dotnet/runtime) | MIT | .NET Foundation |
-| [Microsoft.Extensions.DependencyInjection](https://github.com/dotnet/runtime) | MIT | .NET Foundation |
-| [Avalonia](https://github.com/AvaloniaUI/Avalonia)               | MIT | AvaloniaUI OÜ |
-| [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet) | MIT | .NET Foundation |
+| ライブラリ                                                                    | ライセンス | 著作権          |
+| ----------------------------------------------------------------------------- | ---------- | --------------- |
+| [System.CommandLine](https://github.com/dotnet/command-line-api)              | MIT        | .NET Foundation |
+| [Microsoft.Extensions.Http](https://github.com/dotnet/runtime)                | MIT        | .NET Foundation |
+| [Microsoft.Extensions.Configuration](https://github.com/dotnet/runtime)       | MIT        | .NET Foundation |
+| [Microsoft.Extensions.DependencyInjection](https://github.com/dotnet/runtime) | MIT        | .NET Foundation |
+| [Avalonia](https://github.com/AvaloniaUI/Avalonia)                            | MIT        | AvaloniaUI OÜ   |
+| [CommunityToolkit.Mvvm](https://github.com/CommunityToolkit/dotnet)           | MIT        | .NET Foundation |
 
 ライセンスファイルの全文は [LICENSES](./LICENSES/) フォルダを参照してください。
 
