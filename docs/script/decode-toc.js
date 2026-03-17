@@ -2,7 +2,7 @@
  * doctocが生成したTOCを後処理するスクリプト
  * - URLエンコードされた日本語をデコード
  * - H1へのリンク（ファイルのH1タイトルと一致する項目）を削除
- * - 中黒（・）をアンカーから削除（GitHub仕様に準拠）
+ * - 中黒（・）や矢印（→←↑↓）をアンカーから削除（GitHub仕様に準拠）
  * - インデントを2スペースから4スペースに変換（MD007対応）
  *
  * 使用方法:
@@ -99,11 +99,11 @@ files.forEach((filePath) => {
             }
         }
 
-        // 3. 中黒（・）をアンカーから削除（GitHub仕様）
+        // 3. GitHub仕様に合わないアンカー文字を除去（中黒・矢印など）
         processedToc = processedToc.replace(
             /\(#([^)]+)\)/g,
             (linkMatch, anchor) => {
-                const fixedAnchor = anchor.replace(/・/g, "");
+                const fixedAnchor = anchor.replace(/[・→←↑↓]/g, "");
                 return `(#${fixedAnchor})`;
             }
         );
