@@ -83,6 +83,29 @@ function getWikiTitle(relativePath) {
 }
 
 /**
+ * Wiki 内部リンクの .md 拡張子を除去する
+ *
+ * docs/wiki/ のソースファイルでは相対リンクに .md 拡張子を付けて
+ * リポジトリ上でもリンクが機能するようにしている。
+ * GitHub Wiki ではファイル名（拡張子なし）でページを参照するため、
+ * 同期時に .md 拡張子を除去する。
+ *
+ * 変換例:
+ *   [テキスト](extensions-sync-tool.md)       → [テキスト](extensions-sync-tool)
+ *   [テキスト](extensions-sync-tool.md#概要)  → [テキスト](extensions-sync-tool#概要)
+ *   [テキスト](https://example.com/file.md)   → 変換しない（外部URL）
+ *   [テキスト](../contributing/file.md)        → 変換しない（パス区切りあり）
+ */
+function transformWikiLinks(content) {
+  // [^/)#:] で外部URL(`:` を含む)やパス区切り(`/`)を除外し、
+  // 同一ディレクトリ内の .md ファイル名のみをマッチ対象とする
+  return content.replace(
+    /\]\(([^/)#:][^/)#:]*?)\.md(#[^)]*?)?\)/g,
+    (_, filename, anchor) => `](${filename}${anchor || ''})`
+  );
+}
+
+/**
  * Wiki ページを作成または更新（Gitリポジトリ経由）
  */
 function createOrUpdateWikiPage(title, content, wikiDir) {
@@ -232,7 +255,8 @@ function main() {
       }));
 
     for (const file of files) {
-      const content = fs.readFileSync(file.filePath, 'utf-8');
+      const rawContent = fs.readFileSync(file.filePath, 'utf-8');
+      const content = transformWikiLinks(rawContent);
       createOrUpdateWikiPage(file.wikiTitle, content, wikiDir);
     }
 

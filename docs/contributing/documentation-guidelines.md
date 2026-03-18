@@ -7,7 +7,7 @@
 
 - [基本原則](#基本原則)
     - [言語](#言語)
-    - [対象読者](#対象読者)
+    - [対象読者とドキュメントの役割](#対象読者とドキュメントの役割)
 - [ファイル構成](#ファイル構成)
     - [ディレクトリ構造](#ディレクトリ構造)
     - [ファイル命名規則](#ファイル命名規則)
@@ -19,6 +19,9 @@
 - [TOC（目次）自動生成](#toc目次自動生成)
 - [ドキュメント同期](#ドキュメント同期)
     - [更新ルール](#更新ルール)
+- [Wiki の構成と運用](#wiki-の構成と運用)
+    - [Wiki の構成](#wiki-の構成)
+    - [Wiki リンクの記述規約](#wiki-リンクの記述規約)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -31,9 +34,18 @@
 - ドキュメントは**日本語**で記述する
 - コード内のコメント（XMLドキュメントコメント含む）も日本語
 
-### 対象読者
+### 対象読者とドキュメントの役割
 
-- プロジェクトの開発者・コントリビューター
+| ドキュメント         | 対象読者                         | 内容                                                 |
+| -------------------- | -------------------------------- | ---------------------------------------------------- |
+| `README.md`          | **利用者**（ユーザー）           | セットアップ、使用方法、設定、ライセンス             |
+| `CONTRIBUTING.md`    | **開発者**（コントリビューター） | 開発環境構築、コーディング規約、テスト、ブランチ戦略 |
+| `docs/wiki/`         | **利用者**（ユーザー）           | 各ツールの詳細な使用ガイド・リファレンス             |
+| `docs/contributing/` | **開発者**（コントリビューター） | 各種ガイドラインの詳細                               |
+
+- `README.md` には利用者が必要とする情報（セットアップ手順、使用方法、設定方法）を記載する
+- `CONTRIBUTING.md` には開発者が必要とする情報（開発環境構築、コーディング規約、テスト手順）を記載する
+- 開発者向けの詳細なツール設定（npm、lint 等）は `CONTRIBUTING.md` または `docs/contributing/` に記載する
 
 ---
 
@@ -154,3 +166,39 @@ VS Codeでは **RunOnSave** 拡張機能により、`docs/` 配下のMarkdownフ
 | ガイドラインの追加           | `CONTRIBUTING.md` および `.github/copilot-instructions.md` |
 | プロジェクト設定の変更       | `README.md` および `.github/copilot-instructions.md`       |
 | セキュリティ脆弱性の報告対応 | `README.md` の謝辞セクション（報告者名を追記）             |
+
+---
+
+## Wiki の構成と運用
+
+### Wiki の構成
+
+`docs/wiki/` はCIにより GitHub Wiki リポジトリへ自動同期される。体系的な構成を維持すること。
+
+- `Home.md` はランディングページとして、プロジェクト概要とツール使用ガイドへのリンクを記載する
+- 各ツールのガイドは独立したファイルとして作成する
+- `Home.md` ではガイドをカテゴリ別にテーブル形式で整理する
+
+### Wiki リンクの記述規約
+
+`docs/wiki/` 配下のファイル間リンクには `.md` 拡張子を**付ける**こと。
+
+```markdown
+<!-- ○ 正しい（リポジトリ上でもリンクが機能する） -->
+
+[ExtensionsSyncTool 使用ガイド](extensions-sync-tool.md)
+
+<!-- × 誤り（リポジトリ上でリンクが機能しない） -->
+
+[ExtensionsSyncTool 使用ガイド](extensions-sync-tool)
+```
+
+CI の Wiki 同期スクリプト（`docs/script/sync-docs-to-wiki.js`）が、同期時に `.md` 拡張子を自動で除去するため、GitHub Wiki 上でも正しくリンクが機能する。
+
+#### 外部リンク
+
+リポジトリ外へのリンク（README、CONTRIBUTING 等）は絶対 URL を使用する。
+
+```markdown
+[README](https://github.com/vehiclevisionjp/VehicleVision.Pleasanter.ExtensionsTools)
+```
