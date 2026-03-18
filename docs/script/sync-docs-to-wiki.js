@@ -97,6 +97,8 @@ function getWikiTitle(relativePath) {
  *   [テキスト](../contributing/file.md)        → 変換しない（パス区切りあり）
  */
 function transformWikiLinks(content) {
+  // [^/)#:] で外部URL(`:` を含む)やパス区切り(`/`)を除外し、
+  // 同一ディレクトリ内の .md ファイル名のみをマッチ対象とする
   return content.replace(
     /\]\(([^/)#:][^/)#:]*?)\.md(#[^)]*?)?\)/g,
     (_, filename, anchor) => `](${filename}${anchor || ''})`
