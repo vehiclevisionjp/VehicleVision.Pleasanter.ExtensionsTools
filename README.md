@@ -19,6 +19,8 @@
     - [設定](#設定)
     - [コマンド（CLI）](#コマンドcli)
     - [デスクトップ版（ExtensionsDiffViewer）](#デスクトップ版extensionsdiffviewer)
+- [ドキュメント](#ドキュメント)
+- [開発への参加](#開発への参加)
 - [プロジェクト構成](#プロジェクト構成)
     - [ファイルと Extensions テーブルのマッピング](#ファイルと-extensions-テーブルのマッピング)
 - [サードパーティライセンス](#サードパーティライセンス)
@@ -32,7 +34,6 @@
 ### 前提条件
 
 - [.NET SDK 10.0](https://dotnet.microsoft.com/download) 以上
-- [Node.js](https://nodejs.org/) （ドキュメントのlint・フォーマット用、推奨）
 - [Git](https://git-scm.com/)
 
 ### クローン
@@ -48,12 +49,6 @@ git submodule update --init --recursive
 ```bash
 dotnet restore
 dotnet build
-```
-
-#### ドキュメントツールのセットアップ（任意）
-
-```bash
-npm install
 ```
 
 ## 使用方法
@@ -148,6 +143,17 @@ dotnet run --project src/ExtensionsDiffViewer
 #### 設定
 
 CLI ツールと同じ設定方法（`appsettings.json`、`local.config.json`、環境変数）が使用できます。GUI 上部の入力欄からも直接設定できます。
+
+## ドキュメント
+
+各ツールの詳細な使用ガイドは Wiki を参照してください。
+
+- [ExtensionsSyncTool 使用ガイド](https://github.com/vehiclevisionjp/VehicleVision.Pleasanter.ExtensionsTools/wiki/extensions-sync-tool)
+- [ExtensionsDiffViewer 使用ガイド](https://github.com/vehiclevisionjp/VehicleVision.Pleasanter.ExtensionsTools/wiki/extensions-diff-viewer)
+
+## 開発への参加
+
+開発環境の構築、コーディング規約、テストの書き方などの開発者向け情報は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
 
 ## プロジェクト構成
 

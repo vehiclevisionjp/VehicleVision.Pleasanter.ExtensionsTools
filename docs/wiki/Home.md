@@ -4,12 +4,16 @@
 
 VehicleVision.Pleasanter.ExtensionsTools のドキュメントへようこそ。
 
-## ドキュメント一覧
+プリザンターの **Extensions テーブル**とローカルの **Parameters フォルダ**を双方向に同期するクロスプラットフォーム対応ツールです。CLI ツールに加え、WinMerge 風の差分ビューアデスクトップアプリを提供します。
 
-- [ExtensionsSyncTool 使用ガイド](extensions-sync-tool.md)
-- [ExtensionsDiffViewer 使用ガイド](extensions-diff-viewer.md)
+## ツール使用ガイド
+
+| ガイド                                                       | 説明                                                           |
+| ------------------------------------------------------------ | -------------------------------------------------------------- |
+| [ExtensionsSyncTool 使用ガイド](extensions-sync-tool.md)     | CLI ツールの設定・コマンドリファレンス・ファイルマッピング仕様 |
+| [ExtensionsDiffViewer 使用ガイド](extensions-diff-viewer.md) | デスクトップ差分ビューアの画面構成・操作方法                   |
 
 ## 関連リンク
 
-- [README](https://github.com/vehiclevisionjp/VehicleVision.Pleasanter.ExtensionsTools)
-- [コントリビューションガイド](https://github.com/vehiclevisionjp/VehicleVision.Pleasanter.ExtensionsTools/blob/main/CONTRIBUTING.md)
+- [README（セットアップ・概要）](https://github.com/vehiclevisionjp/VehicleVision.Pleasanter.ExtensionsTools)
+- [コントリビューションガイド（開発者向け）](https://github.com/vehiclevisionjp/VehicleVision.Pleasanter.ExtensionsTools/blob/main/CONTRIBUTING.md)

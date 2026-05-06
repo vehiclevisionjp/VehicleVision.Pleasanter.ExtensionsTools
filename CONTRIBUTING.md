@@ -8,6 +8,10 @@ VehicleVision.Pleasanter.ExtensionsTools へのコントリビューションに
 
 - [はじめに](#はじめに)
 - [ガイドライン一覧](#ガイドライン一覧)
+- [開発環境のクイックセットアップ](#開発環境のクイックセットアップ)
+    - [リポジトリのクローン](#リポジトリのクローン)
+    - [ビルドとテスト](#ビルドとテスト)
+    - [ドキュメントツールのセットアップ](#ドキュメントツールのセットアップ)
 - [クイックスタート](#クイックスタート)
     - [1. リポジトリをフォーク・クローン](#1-リポジトリをフォーククローン)
     - [2. ブランチを作成](#2-ブランチを作成)
@@ -36,14 +40,46 @@ VehicleVision.Pleasanter.ExtensionsTools へのコントリビューションに
 | [ブランチ戦略](docs/contributing/branch-strategy.md)                      | ブランチ命名、マージ方針                 |
 | [CI/CDワークフロー](docs/contributing/ci-workflow.md)                     | 自動テスト、リリースプロセス             |
 
-## クイックスタート
+## 開発環境のクイックセットアップ
 
-### 1. リポジトリをフォーク・クローン
+### リポジトリのクローン
 
 ```bash
 git clone https://github.com/your-username/VehicleVision.Pleasanter.ExtensionsTools.git
 cd VehicleVision.Pleasanter.ExtensionsTools
+git submodule update --init --recursive
 ```
+
+### ビルドとテスト
+
+```bash
+dotnet restore
+dotnet build
+dotnet test
+```
+
+### ドキュメントツールのセットアップ
+
+Markdown の lint・フォーマット・TOC 生成には Node.js ツールを使用します。
+
+```bash
+npm install
+```
+
+| スクリプト            | 説明                             |
+| --------------------- | -------------------------------- |
+| `npm run toc:all`     | TOC更新 + フォーマットを一括実行 |
+| `npm run lint:md`     | Markdownの構文チェック           |
+| `npm run lint:md:fix` | Markdownのlintエラーを自動修正   |
+| `npm run format`      | Prettierでフォーマット           |
+
+詳細は[開発環境構築](docs/contributing/development-environment.md)を参照してください。
+
+## クイックスタート
+
+### 1. リポジトリをフォーク・クローン
+
+上記「[開発環境のクイックセットアップ](#開発環境のクイックセットアップ)」を参照してください。
 
 ### 2. ブランチを作成
 
