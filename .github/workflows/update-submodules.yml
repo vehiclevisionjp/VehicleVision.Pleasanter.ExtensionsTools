@@ -1,0 +1,45 @@
+name: Update Submodules
+
+on:
+  schedule:
+    - cron: "0 0 * * *" # 毎日 0:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-submodules:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          submodules: true
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update submodules to latest
+        run: |
+          # --remote: サブモジュールのリモートリポジトリの最新コミットへ参照を更新する。
+          # --merge: 現在のサブモジュールの HEAD をリモートの最新コミットへマージし、
+          #          デタッチドヘッドにならないようにする。
+          # コンフリクトが発生した場合はワークフローがエラー終了し、手動対応が必要。
+          git submodule update --remote --merge
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No submodule updates."
+          else
+            # git submodule status の出力は先頭に符号文字（' ', '+', '-', 'U'）が付くため
+            # substr($1, 2, 7) で符号を除いた短縮ハッシュ 7 文字を取得する。
+            SUBMODULE_STATUS=$(git submodule status --cached | awk '{print $2 "@" substr($1,2,7)}' | tr '\n' ' ')
+            git commit -m "chore: update submodules [${SUBMODULE_STATUS% }]"
+            git push origin develop
+          fi

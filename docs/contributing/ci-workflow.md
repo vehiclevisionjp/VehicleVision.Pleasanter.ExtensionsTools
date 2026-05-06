@@ -24,10 +24,15 @@
     - [概要](#概要-2)
     - [トリガー](#トリガー-2)
     - [処理フロー](#処理フロー-2)
+- [4. Update Submodules ワークフロー](#4-update-submodules-ワークフロー)
+    - [概要](#概要-3)
+    - [トリガー](#トリガー-3)
+    - [処理フロー](#処理フロー-3)
 - [トラブルシューティング](#トラブルシューティング)
     - [CI が失敗する](#ci-が失敗する)
     - [リリースワークフローが失敗する](#リリースワークフローが失敗する)
     - [Wiki ページが同期されない](#wiki-ページが同期されない)
+    - [サブモジュールが更新されない](#サブモジュールが更新されない)
 - [関連ドキュメント](#関連ドキュメント)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
@@ -36,11 +41,12 @@
 
 ## ワークフロー一覧
 
-| ワークフロー      | ファイル        | トリガー                                           | 目的                                  |
-| ----------------- | --------------- | -------------------------------------------------- | ------------------------------------- |
-| CI                | `ci.yml`        | main / develop への push・PR                       | ビルド・テストの自動実行              |
-| Create Release    | `release.yml`   | 手動実行（main ブランチのみ）                      | バージョンアップ、GitHub Release 作成 |
-| Sync Docs to Wiki | `sync-wiki.yml` | main への push（docs/wiki 配下の変更時）/ 手動実行 | Wiki ページの自動同期                 |
+| ワークフロー      | ファイル                | トリガー                                           | 目的                                  |
+| ----------------- | ----------------------- | -------------------------------------------------- | ------------------------------------- |
+| CI                | `ci.yml`                | main / develop への push・PR                       | ビルド・テストの自動実行              |
+| Create Release    | `release.yml`           | 手動実行（main ブランチのみ）                      | バージョンアップ、GitHub Release 作成 |
+| Sync Docs to Wiki | `sync-wiki.yml`         | main への push（docs/wiki 配下の変更時）/ 手動実行 | Wiki ページの自動同期                 |
+| Update Submodules | `update-submodules.yml` | 毎日 0:00 UTC / 手動実行                           | サブモジュールの自動更新（develop）   |
 
 ---
 
@@ -81,11 +87,13 @@ flowchart TB
         F -->|docs/wiki/** の変更| G[Sync Docs to Wiki]
         F -->|手動実行| H[Create Release]
         B -->|push / PR| I[CI ビルド・テスト]
+        S[毎日 0:00 UTC] --> T[Update Submodules]
     end
 
     subgraph 成果物
         G --> J[GitHub Wiki 更新]
         H --> K[GitHub Release]
+        T --> U[develop サブモジュール更新]
     end
 ```
 
@@ -213,6 +221,33 @@ flowchart TD
 
 ---
 
+## 4. Update Submodules ワークフロー
+
+### 概要
+
+毎日定時にサブモジュールを最新コミットへ更新し、`develop` ブランチへ自動コミット・プッシュする。
+
+### トリガー
+
+- **定時実行**: 毎日 0:00 UTC（`cron: "0 0 * * *"`）
+- **手動実行**（`workflow_dispatch`）
+
+### 処理フロー
+
+```mermaid
+flowchart TD
+    A[毎日 0:00 UTC / 手動実行] --> B[develop ブランチをチェックアウト]
+    B --> C[git submodule update --remote --merge]
+    C --> D{変更あり?}
+    D -->|Yes| E[git commit & push → develop]
+    D -->|No| F[スキップ]
+
+    style E fill:#c8e6c9
+    style F fill:#f5f5f5
+```
+
+---
+
 ## トラブルシューティング
 
 ### CI が失敗する
@@ -232,6 +267,13 @@ flowchart TD
 1. `docs/wiki/` 配下のファイルが変更されているか確認
 2. GitHub Actions のログを確認
 3. Wiki リポジトリが初期化されているか確認（最初に手動でWikiページを1つ作成する必要がある）
+
+### サブモジュールが更新されない
+
+1. GitHub Actions のログを確認
+2. サブモジュールのリモートリポジトリにアクセスできるか確認
+3. `develop` ブランチが存在するか確認
+4. 手動実行（`workflow_dispatch`）で動作を確認
 
 ---
 
